@@ -1,0 +1,111 @@
+#include <stdio.h>
+#include <conio.h>
+#include <windows.h>
+
+#define WIDTH 50
+#define HEIGHT 20
+
+int planeX, planeY;
+int enemyX, enemyY;
+int bulletX, bulletY;
+int score;
+
+void gotoxy(int x, int y) {
+    COORD coord;
+    coord.X = x;
+    coord.Y = y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
+void drawPlane() {
+    gotoxy(planeX, planeY);
+    printf("  ^  ");
+    gotoxy(planeX, planeY + 1);
+    printf(" /|\\ ");
+    gotoxy(planeX, planeY + 2);
+    printf("/ | \\");
+}
+
+void drawEnemy() {
+    gotoxy(enemyX, enemyY);
+    printf("  X  ");
+    gotoxy(enemyX, enemyY + 1);
+    printf(" XXX ");
+    gotoxy(enemyX, enemyY + 2);
+    printf("  X  ");
+}
+
+void drawBullet() {
+    gotoxy(bulletX, bulletY);
+    printf("|");
+}
+
+void clearBullet() {
+    gotoxy(bulletX, bulletY);
+    printf(" ");
+}
+
+void clearConsole() {
+    system("cls");
+}
+
+void moveBullet() {
+    clearBullet();
+    bulletY--;
+    drawBullet();
+}
+
+void gameOver() {
+    clearConsole();
+    printf("Game Over!\n");
+    printf("Your Score: %d\n", score);
+}
+
+void gameLoop() {
+    while (1) {
+        clearConsole();
+        drawPlane();
+        drawEnemy();
+        drawBullet();
+
+        if (kbhit()) {
+            char key = getch();
+            if (key == 'a' && planeX > 0) planeX--;
+            if (key == 'd' && planeX < WIDTH - 4) planeX++;
+            if (key == ' ') {
+                bulletX = planeX + 2;
+                bulletY = planeY - 1;
+            }
+        }
+
+        moveBullet();
+        Sleep(200);
+
+        if (bulletX == enemyX + 1 && bulletY >= enemyY && bulletY <= enemyY + 2) {
+            score++;
+            enemyX = rand() % (WIDTH - 4);
+            enemyY = 0;
+        }
+
+        if (enemyY == HEIGHT) {
+            gameOver();
+            break;
+        }
+
+        enemyY++;
+    }
+}
+
+int main() {
+    planeX = WIDTH / 2 - 2;
+    planeY = HEIGHT - 4;
+    enemyX = rand() % (WIDTH - 4);
+    enemyY = 0;
+    bulletX = planeX + 2;
+    bulletY = planeY - 1;
+    score = 0;
+
+    gameLoop();
+
+    return 0;
+}
